@@ -1,11 +1,12 @@
 import React from 'react';
-import { TodoItem } from '../types/TodoTypes'; // Ensure this is imported
+
 import tick from '../assets/tick.png';
 import not_tick from '../assets/not_tick.png';
 import delete_icon from '../assets/delete.png';
+import { TodoState } from '../state/todoSlice';
 
 interface TodoItemsProps {
-  item: TodoItem;
+  item: TodoState;
   handleDeleteItem: (id: number) => void;
   toggleTodo: (id: number) => void;
 }
