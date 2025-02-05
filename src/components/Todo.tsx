@@ -1,14 +1,35 @@
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import todoIcon from '../assets/todo_icon.png'
 import TodoItems from './TodoItems'
-import { TodoItem } from '../types/TodoTypes'
+
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '../state/store'
+import { addTodo, deleteTodoItem, TodoState, updateCompletedStatus } from '../state/todoSlice'
+
+// all the commented code and local states can be removed after adding store concept
+// and no need of any useEffect since store updates triggers selector
 
 const Todo = () => {
-    const [todoList, setTodoList] = useState<TodoItem[]>([])
-    const [activeList, setActiveList] = useState<TodoItem[]>([])
-    const [completedList, setCompletedList] = useState<TodoItem[]>([])
+    // const [todoList, setTodoList] = useState<TodoState[]>([])
+    // const [activeList, setActiveList] = useState<TodoState[]>([])
+    // const [completedList, setCompletedList] = useState<TodoState[]>([])
 
+    const todoList = useSelector((state:RootState)=> state.todos.todos)
+    const activeList = todoList.filter(item => !item.isCompleted)
+    const completedList = todoList.filter(item => item.isCompleted)
+    const dispatch = useDispatch()
     const inputRef = useRef<HTMLInputElement>(null)
+
+    // useEffect(()=>{
+    //     // adding previous list from store when refreshed
+    //     addListToState(todosFromStore.todos)
+    // },[todosFromStore])
+
+    // const addListToState = (currentItem:TodoState[]) => {
+    //     setTodoList(currentItem)
+    //     setActiveList(currentItem.filter(item => !item.isCompleted))
+    //     setCompletedList(currentItem.filter(item => item.isCompleted))
+    // }
 
     const handleAddItem = (): void => {
         let inputText = ""
@@ -21,25 +42,25 @@ const Todo = () => {
             return
         }
 
-        const newTodo: TodoItem = {
+        const newTodo: TodoState = {
             id: Math.random(),
             text: inputText,
             isCompleted: false,
         }
 
-        const currentItem = [...todoList, newTodo]
-        console.log("list add", currentItem)
-        setTodoList(currentItem)
-        setActiveList(currentItem.filter(item => !item.isCompleted))
-        setCompletedList(currentItem.filter(item => item.isCompleted))
+        const currentItems = [...todoList, newTodo]
+        console.log("list add", currentItems)
+        dispatch(addTodo(newTodo))
+        // addListToState(currentItems)
         if (inputRef.current) inputRef.current.value = ""
     }
 
     const handleDeleteItem = (id: number): void => {
-        const updatedList = todoList.filter(item => item.id !== id)
-        setTodoList(updatedList)
-        setActiveList(updatedList.filter(item => !item.isCompleted))
-        setCompletedList(updatedList.filter(item => item.isCompleted))
+        // const updatedList = todoList.filter(item => item.id !== id)
+        dispatch(deleteTodoItem({id}))
+        // setTodoList(updatedList)
+        // setActiveList(updatedList.filter(item => !item.isCompleted))
+        // setCompletedList(updatedList.filter(item => item.isCompleted))
     }
 
     const toggleTodo = (id: number): void => {
@@ -49,10 +70,11 @@ const Todo = () => {
             }
             return item
         })
-        setTodoList(updatedList)
+        dispatch(updateCompletedStatus({id}))
+        // setTodoList(updatedList)
         console.log("toggle", updatedList)
-        setActiveList(updatedList.filter(item => !item.isCompleted))
-        setCompletedList(updatedList.filter(item => item.isCompleted))
+        // setActiveList(updatedList.filter(item => !item.isCompleted))
+        // setCompletedList(updatedList.filter(item => item.isCompleted))
     }
 
     return (
